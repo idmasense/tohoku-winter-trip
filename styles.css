@@ -46,6 +46,8 @@ body {
   background-position: 0 0, 18px 18px;
   color: var(--cocoa);
   line-height: 1.7;
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 a {
@@ -1561,4 +1563,475 @@ main {
   display: flex;
   gap: 8px;
   align-items: center;
+}
+
+/* === Mobile-First Phone Optimizations (<= 720px & <= 480px) === */
+@media (max-width: 720px) {
+  .container {
+    padding: 0 12px;
+  }
+
+  /* 緊湊手機版 Hero */
+  .hero {
+    padding: 20px 0 18px;
+    border-radius: 0 0 24px 24px;
+  }
+
+  .snow-decor {
+    display: none;
+  }
+
+  .hero-layout {
+    gap: 14px;
+  }
+
+  .hero-inner {
+    gap: 12px;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.78rem;
+    padding: 4px 12px;
+  }
+
+  .hero h1 {
+    font-size: 1.45rem;
+  }
+
+  .hero-route {
+    font-size: 0.84rem;
+    padding: 6px 10px;
+    line-height: 1.5;
+  }
+
+  .hero-illustration-wrap {
+    max-width: 195px;
+  }
+
+  .hero-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .hero-metric {
+    padding: 9px 11px;
+    border-radius: 14px;
+  }
+
+  .hero-metric:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .hero-metric-value {
+    font-size: 1.08rem;
+  }
+
+  .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .hero-actions .btn {
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 0.83rem;
+  }
+
+  .hero-actions .btn-primary {
+    grid-column: 1 / -1;
+  }
+
+  /* 手機拇指好滑的固定分頁列 */
+  .tab-bar {
+    padding: 8px 0;
+    gap: 6px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab-btn {
+    min-width: 72px;
+    min-height: 44px;
+    padding: 6px 10px;
+    border-radius: 14px;
+    scroll-snap-align: center;
+  }
+
+  .tab-btn.tab-summary {
+    min-width: 98px;
+  }
+
+  .tab-day-tag {
+    font-size: 0.84rem;
+  }
+
+  .tab-date-sub {
+    font-size: 0.68rem;
+  }
+
+  /* 最大化手機閱讀寬度 */
+  main {
+    padding: 16px 0 44px;
+  }
+
+  .day-card {
+    border-radius: 18px;
+  }
+
+  .day-hero-banner {
+    padding: 16px 14px;
+    gap: 14px;
+  }
+
+  .day-title {
+    font-size: 1.16rem;
+  }
+
+  .day-summary {
+    font-size: 0.88rem;
+  }
+
+  .day-side-info-inline {
+    padding: 10px 12px;
+    font-size: 0.82rem;
+    gap: 6px;
+  }
+
+  .day-illust-card {
+    max-width: 220px;
+    padding: 8px;
+    border-radius: 16px;
+  }
+
+  .timeline {
+    padding: 14px 12px;
+    gap: 14px;
+  }
+
+  .stop-item {
+    margin-left: 0;
+    padding: 14px 12px;
+    border-left: 4px solid #ff8da8;
+    border-radius: 16px;
+  }
+
+  .stop-item::before {
+    display: none;
+  }
+
+  .stop-top {
+    gap: 6px;
+  }
+
+  .stop-name {
+    font-size: 1rem;
+  }
+
+  .stop-desc {
+    font-size: 0.9rem;
+  }
+
+  .stop-actions {
+    gap: 6px;
+  }
+
+  .map-link-btn,
+  .stop-actions .btn {
+    min-height: 38px;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+  }
+
+  .day-dining-callout,
+  .day-extra-expenses {
+    margin: 0 12px 16px;
+    padding: 14px 12px;
+  }
+
+  /* 防止 iOS Safari 輸入框自動放大 */
+  input,
+  select,
+  .form-field input,
+  .form-field select,
+  .rate-control input,
+  .table-filters select,
+  .amount-input {
+    font-size: 16px !important;
+  }
+
+  /* 手機版站點內嵌記帳列與表單 */
+  .stop-expense-box {
+    padding: 11px 10px;
+  }
+
+  .stop-expense-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      'check main del'
+      'method amount amount';
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .stop-exp-check {
+    grid-area: check;
+  }
+
+  .stop-exp-main {
+    grid-area: main;
+    min-width: 0;
+  }
+
+  .inline-delete-btn {
+    grid-area: del;
+    min-height: 36px;
+  }
+
+  .stop-expense-row .method-badge {
+    grid-area: method;
+    justify-self: start;
+  }
+
+  .stop-exp-amount {
+    grid-area: amount;
+    justify-self: end;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .inline-amount-input {
+    width: 96px;
+    min-height: 38px;
+  }
+
+  .inline-form-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .inline-span-2 {
+    grid-column: 1 / -1;
+  }
+
+  .inline-form-actions {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+  }
+
+  .inline-form-actions .btn {
+    min-height: 40px;
+  }
+
+  /* 總結頁與手機卡片式財務明細（免水平滑動表格） */
+  .summary-banner {
+    padding: 16px 14px;
+    gap: 14px;
+    margin-bottom: 20px;
+    border-radius: 18px;
+  }
+
+  .summary-banner h2 {
+    font-size: 1.28rem;
+  }
+
+  .summary-illust-wrap {
+    max-width: 200px;
+  }
+
+  .expense-panel {
+    padding: 14px 12px;
+    gap: 16px;
+    border-radius: 18px;
+  }
+
+  .rate-bar {
+    padding: 10px 12px;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .stat-card.highlight {
+    grid-column: 1 / -1;
+  }
+
+  .stat-value {
+    font-size: 1.22rem;
+  }
+
+  .breakdown-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .expense-form-box {
+    padding: 14px 12px;
+  }
+
+  .expense-form {
+    grid-template-columns: 1fr;
+  }
+
+  .table-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .table-filters select {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  .table-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .table-actions .btn {
+    min-height: 38px;
+    padding: 6px 8px;
+    font-size: 0.78rem;
+  }
+
+  .table-wrap {
+    border: none;
+    overflow: visible;
+  }
+
+  .expense-table {
+    min-width: 0;
+    display: block;
+  }
+
+  .expense-table thead {
+    display: none;
+  }
+
+  .expense-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .expense-table tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 10px;
+    padding: 12px;
+    background: #ffffff;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 3px 0 rgba(245, 200, 218, 0.25);
+  }
+
+  .expense-table tr.is-paid {
+    background: #f4fcf8;
+    border-color: #b4ebd4;
+  }
+
+  .expense-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0;
+    border-bottom: none;
+  }
+
+  .expense-table td[data-label]::before {
+    content: attr(data-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .expense-table td.td-title-cell {
+    grid-column: 1 / -1;
+    display: block;
+    padding-bottom: 6px;
+    border-bottom: 1.5px dashed #f3dce6;
+  }
+
+  .expense-table td.td-title-cell::before {
+    display: none;
+  }
+
+  .expense-table td[data-label='金額'] {
+    grid-column: 1 / -1;
+  }
+
+  .expense-table td[data-label='操作'] {
+    justify-content: flex-end;
+  }
+
+  .expense-table td[data-label='操作']::before {
+    display: none;
+  }
+
+  .page-turn-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .page-turn-nav .btn {
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 10px;
+    font-size: 0.84rem;
+  }
+
+  .prep-grid,
+  .dining-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .card-box,
+  .dining-card {
+    padding: 16px 14px;
+    border-radius: 18px;
+  }
+
+  .toast {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 1.35rem;
+  }
+
+  .hero-illustration-wrap {
+    max-width: 175px;
+  }
+
+  .section-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .table-actions {
+    grid-template-columns: 1fr;
+  }
 }

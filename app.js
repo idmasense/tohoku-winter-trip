@@ -197,11 +197,17 @@
     state.activeTab = tabId;
     saveActiveTab();
 
+    let activeBtn = null;
     document.querySelectorAll('#main-tab-bar [data-tab]').forEach((btn) => {
       const isCurrent = btn.getAttribute('data-tab') === tabId;
       btn.classList.toggle('active', isCurrent);
       btn.setAttribute('aria-selected', isCurrent ? 'true' : 'false');
+      if (isCurrent) activeBtn = btn;
     });
+
+    if (activeBtn && typeof activeBtn.scrollIntoView === 'function') {
+      activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
 
     const panelItin = document.getElementById('panel-itinerary');
     const panelSummary = document.getElementById('panel-summary');
@@ -770,7 +776,7 @@
         const curSymbol = item.currency === 'TWD' ? 'NT$' : '¥';
         return `
           <tr class="${item.paid ? 'is-paid' : ''}" data-id="${escapeHtml(item.id)}">
-            <td>
+            <td data-label="狀態">
               <label class="paid-toggle">
                 <input type="checkbox" class="row-paid-toggle" ${item.paid ? 'checked' : ''} />
                 <span class="status-pill ${item.paid ? 'status-paid' : 'status-pending'}">
@@ -778,14 +784,14 @@
                 </span>
               </label>
             </td>
-            <td><strong>${escapeHtml(item.day)}</strong></td>
-            <td>
+            <td data-label="天數"><strong>${escapeHtml(item.day)}</strong></td>
+            <td data-label="項目" class="td-title-cell">
               <div style="font-weight: 700; color: #4a3544;">${escapeHtml(item.title)}</div>
               ${item.note ? `<div style="font-size: 0.78rem; color: #846b7d;">${escapeHtml(item.note)}</div>` : ''}
             </td>
-            <td>${escapeHtml(item.category)}</td>
-            <td><span class="method-badge ${methodBadgeClass(item.method)}">${escapeHtml(item.method)}</span></td>
-            <td>
+            <td data-label="分類">${escapeHtml(item.category)}</td>
+            <td data-label="付款方式"><span class="method-badge ${methodBadgeClass(item.method)}">${escapeHtml(item.method)}</span></td>
+            <td data-label="金額">
               <div class="amount-editor">
                 <span>${curSymbol}</span>
                 <input
@@ -798,8 +804,8 @@
                 />
               </div>
             </td>
-            <td><strong>NT$ ${fmtNum(twdVal)}</strong></td>
-            <td>
+            <td data-label="折合台幣"><strong>NT$ ${fmtNum(twdVal)}</strong></td>
+            <td data-label="操作">
               <button type="button" class="btn btn-danger-soft btn-sm row-delete-btn" title="刪除此筆費用">刪除</button>
             </td>
           </tr>
