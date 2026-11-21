@@ -1044,6 +1044,7 @@ main {
   width: 100%;
   min-width: 0;
   max-width: 100%;
+  white-space: nowrap;
   padding: 9px 12px;
   background: #ffffff;
   border: 2px solid #d9e8f7;
@@ -1757,7 +1758,11 @@ main {
 
   /* 手機版站點內嵌記帳列與表單 */
   .stop-expense-box {
-    padding: 11px 10px;
+    padding: 10px 8px;
+  }
+
+  .inline-expense-form {
+    padding: 10px 8px;
   }
 
   .stop-expense-row {
@@ -1807,6 +1812,10 @@ main {
   .checkbox-inline {
     min-height: 44px;
     padding: 9px 10px;
+  }
+
+  .form-field select {
+    padding: 8px;
   }
 
   .inline-form-grid {
