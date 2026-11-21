@@ -1807,11 +1807,19 @@ main {
     min-height: 38px;
   }
 
-  .form-field input,
+  .form-field input:not([type='checkbox']),
   .form-field select,
   .checkbox-inline {
-    min-height: 44px;
-    padding: 9px 10px;
+    height: 46px;
+    min-height: 46px;
+    padding: 8px 10px;
+  }
+
+  .checkbox-inline input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+    min-height: 18px;
+    padding: 0;
   }
 
   .form-field select {
@@ -1895,6 +1903,7 @@ main {
   .expense-form {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
+    align-items: start;
   }
 
   .expense-form .form-field.span-2,
@@ -1923,14 +1932,18 @@ main {
   .table-actions {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .table-actions #btn-clear-all {
+    grid-column: 1 / -1;
   }
 
   .table-actions .btn {
-    min-height: 38px;
-    padding: 6px 8px;
-    font-size: 0.78rem;
+    min-height: 40px;
+    padding: 6px 10px;
+    font-size: 0.82rem;
   }
 
   .table-wrap {
@@ -2034,6 +2047,11 @@ main {
     border-radius: 18px;
   }
 
+  .temp-chip {
+    font-size: 0.77rem;
+    padding: 5px 10px;
+  }
+
   .toast {
     left: 14px;
     right: 14px;
@@ -2053,9 +2071,5 @@ main {
 
   .section-header h2 {
     font-size: 1.3rem;
-  }
-
-  .table-actions {
-    grid-template-columns: 1fr;
   }
 }

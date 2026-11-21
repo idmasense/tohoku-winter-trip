@@ -1038,6 +1038,71 @@
       showToast('已匯出 CSV 費用明細表');
     });
 
+    // 匯出 JSON 備份（含匯率、記帳紀錄與行前打勾進度）
+    document.getElementById('btn-export-json').addEventListener('click', () => {
+      const payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        exchangeRate: state.exchangeRate,
+        expenses: state.expenses,
+        checks: state.checks,
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '日本東北7天6夜_記帳與進度備份.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('已匯出 JSON 備份檔，可於其他裝置匯入還原！');
+    });
+
+    // 匯入 JSON 備份
+    const importInput = document.getElementById('import-json-input');
+    document.getElementById('btn-import-json').addEventListener('click', () => {
+      importInput.value = '';
+      importInput.click();
+    });
+
+    importInput.addEventListener('change', (ev) => {
+      const file = ev.target.files && ev.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(String(reader.result || '{}'));
+          if (!parsed || !Array.isArray(parsed.expenses)) {
+            showToast('備份檔格式不正確，請確認為本網頁匯出的 JSON 檔');
+            return;
+          }
+          const defaultMap = new Map(DEFAULT_EXPENSES.map((d) => [d.id, d.stopKey]));
+          state.expenses = parsed.expenses.map((item) =>
+            !item.stopKey && defaultMap.has(item.id)
+              ? { ...item, stopKey: defaultMap.get(item.id) }
+              : item
+          );
+          if (Number.isFinite(Number(parsed.exchangeRate)) && Number(parsed.exchangeRate) > 0) {
+            state.exchangeRate = Number(parsed.exchangeRate);
+            document.getElementById('exchange-rate').value = state.exchangeRate;
+            saveExchangeRate();
+          }
+          if (parsed.checks && typeof parsed.checks === 'object') {
+            state.checks = parsed.checks;
+            saveChecks();
+          }
+          saveExpenses();
+          renderPrepSection();
+          refreshExpenseViews();
+          showToast(`已成功匯入 ${state.expenses.length} 筆費用與進度備份！`);
+        } catch {
+          showToast('讀取 JSON 備份檔失敗，請重新確認檔案內容');
+        }
+      };
+      reader.readAsText(file, 'utf-8');
+    });
+
     // 重設預設清單
     document.getElementById('btn-reset-defaults').addEventListener('click', () => {
       if (!confirm('確定要還原為行程表原始預設的費用清單嗎？這將會覆蓋目前的自訂修改。')) return;
