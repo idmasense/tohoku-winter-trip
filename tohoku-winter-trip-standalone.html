@@ -1015,16 +1015,11 @@ main {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  min-width: 0;
 }
 
 .form-field.span-2 {
   grid-column: span 2;
-}
-
-@media (max-width: 640px) {
-  .form-field.span-2 {
-    grid-column: span 1;
-  }
 }
 
 .form-field label {
@@ -1035,6 +1030,9 @@ main {
 
 .form-field input,
 .form-field select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   padding: 9px 12px;
   border: 2px solid #d9e8f7;
   border-radius: var(--radius-sm);
@@ -1056,6 +1054,9 @@ main {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   padding: 9px 12px;
   background: #ffffff;
   border: 2px solid #d9e8f7;
@@ -1566,12 +1567,6 @@ main {
   grid-column: span 2;
 }
 
-@media (max-width: 600px) {
-  .inline-span-2 {
-    grid-column: span 1;
-  }
-}
-
 .inline-form-actions {
   display: flex;
   gap: 8px;
@@ -1820,12 +1815,20 @@ main {
     min-height: 38px;
   }
 
+  .form-field input,
+  .form-field select,
+  .checkbox-inline {
+    min-height: 44px;
+    padding: 9px 10px;
+  }
+
   .inline-form-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
 
-  .inline-span-2 {
+  .inline-span-2,
+  .inline-paid-field {
     grid-column: 1 / -1;
   }
 
@@ -1837,7 +1840,7 @@ main {
   }
 
   .inline-form-actions .btn {
-    min-height: 40px;
+    min-height: 42px;
   }
 
   /* 總結頁與手機卡片式財務明細（免水平滑動表格） */
@@ -1894,7 +1897,19 @@ main {
   }
 
   .expense-form {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .expense-form .form-field.span-2,
+  .expense-form .form-field:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .expense-form .btn-primary {
+    width: 100%;
+    min-height: 46px;
+    font-size: 0.96rem;
   }
 
   .table-filters {
@@ -2293,7 +2308,7 @@ main {
                 </div>
                 <div class="form-field">
                   <label for="exp-amount">金額</label>
-                  <input type="number" id="exp-amount" min="0" step="1" placeholder="0" required />
+                  <input type="number" id="exp-amount" inputmode="numeric" min="0" step="1" placeholder="0" required />
                 </div>
                 <div class="form-field">
                   <label for="exp-paid">支出狀態</label>
@@ -4211,6 +4226,7 @@ const ILLUSTRATIONS = {
               <span>${curSymbol}</span>
               <input
                 type="number"
+                inputmode="numeric"
                 min="0"
                 step="1"
                 class="amount-input inline-amount-input ${amt === 0 ? 'unknown-zero' : ''}"
@@ -4343,7 +4359,7 @@ const ILLUSTRATIONS = {
                       </div>
                       <div class="form-field">
                         <label>金額</label>
-                        <input type="number" name="amount" min="0" step="1" placeholder="輸入金額" required />
+                        <input type="number" inputmode="numeric" name="amount" min="0" step="1" placeholder="輸入金額" required />
                       </div>
                       <div class="form-field">
                         <label>幣別</label>
@@ -4368,7 +4384,7 @@ const ILLUSTRATIONS = {
                         <label>備註（選填）</label>
                         <input type="text" name="note" placeholder="例：門票、伴手禮、與同行分攤" />
                       </div>
-                      <div class="form-field">
+                      <div class="form-field inline-paid-field">
                         <label>狀態</label>
                         <label class="checkbox-inline">
                           <input type="checkbox" name="paid" checked />
@@ -4744,6 +4760,7 @@ const ILLUSTRATIONS = {
                 <span>${curSymbol}</span>
                 <input
                   type="number"
+                  inputmode="numeric"
                   min="0"
                   step="1"
                   class="amount-input ${amt === 0 ? 'unknown-zero' : ''}"

@@ -263,6 +263,7 @@
               <span>${curSymbol}</span>
               <input
                 type="number"
+                inputmode="numeric"
                 min="0"
                 step="1"
                 class="amount-input inline-amount-input ${amt === 0 ? 'unknown-zero' : ''}"
@@ -395,7 +396,7 @@
                       </div>
                       <div class="form-field">
                         <label>金額</label>
-                        <input type="number" name="amount" min="0" step="1" placeholder="輸入金額" required />
+                        <input type="number" inputmode="numeric" name="amount" min="0" step="1" placeholder="輸入金額" required />
                       </div>
                       <div class="form-field">
                         <label>幣別</label>
@@ -420,7 +421,7 @@
                         <label>備註（選填）</label>
                         <input type="text" name="note" placeholder="例：門票、伴手禮、與同行分攤" />
                       </div>
-                      <div class="form-field">
+                      <div class="form-field inline-paid-field">
                         <label>狀態</label>
                         <label class="checkbox-inline">
                           <input type="checkbox" name="paid" checked />
@@ -796,6 +797,7 @@
                 <span>${curSymbol}</span>
                 <input
                   type="number"
+                  inputmode="numeric"
                   min="0"
                   step="1"
                   class="amount-input ${amt === 0 ? 'unknown-zero' : ''}"

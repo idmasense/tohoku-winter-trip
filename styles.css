@@ -1002,16 +1002,11 @@ main {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  min-width: 0;
 }
 
 .form-field.span-2 {
   grid-column: span 2;
-}
-
-@media (max-width: 640px) {
-  .form-field.span-2 {
-    grid-column: span 1;
-  }
 }
 
 .form-field label {
@@ -1022,6 +1017,9 @@ main {
 
 .form-field input,
 .form-field select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   padding: 9px 12px;
   border: 2px solid #d9e8f7;
   border-radius: var(--radius-sm);
@@ -1043,6 +1041,9 @@ main {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   padding: 9px 12px;
   background: #ffffff;
   border: 2px solid #d9e8f7;
@@ -1553,12 +1554,6 @@ main {
   grid-column: span 2;
 }
 
-@media (max-width: 600px) {
-  .inline-span-2 {
-    grid-column: span 1;
-  }
-}
-
 .inline-form-actions {
   display: flex;
   gap: 8px;
@@ -1807,12 +1802,20 @@ main {
     min-height: 38px;
   }
 
+  .form-field input,
+  .form-field select,
+  .checkbox-inline {
+    min-height: 44px;
+    padding: 9px 10px;
+  }
+
   .inline-form-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
 
-  .inline-span-2 {
+  .inline-span-2,
+  .inline-paid-field {
     grid-column: 1 / -1;
   }
 
@@ -1824,7 +1827,7 @@ main {
   }
 
   .inline-form-actions .btn {
-    min-height: 40px;
+    min-height: 42px;
   }
 
   /* 總結頁與手機卡片式財務明細（免水平滑動表格） */
@@ -1881,7 +1884,19 @@ main {
   }
 
   .expense-form {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .expense-form .form-field.span-2,
+  .expense-form .form-field:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .expense-form .btn-primary {
+    width: 100%;
+    min-height: 46px;
+    font-size: 0.96rem;
   }
 
   .table-filters {
