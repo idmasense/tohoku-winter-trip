@@ -225,11 +225,15 @@
     }
 
     if (scrollToContent) {
-      const navEl = document.querySelector('.sticky-nav');
-      if (navEl) {
-        const y = navEl.getBoundingClientRect().top + window.scrollY - 6;
-        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-      }
+      requestAnimationFrame(() => {
+        const mainEl = document.querySelector('main');
+        const navEl = document.querySelector('.sticky-nav');
+        const navHeight = navEl ? navEl.offsetHeight : 0;
+        const targetY = mainEl
+          ? mainEl.getBoundingClientRect().top + window.scrollY - navHeight - 8
+          : 0;
+        window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+      });
     }
   }
 
