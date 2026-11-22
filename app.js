@@ -6,6 +6,7 @@
     RATE: 'tohoku_rate_v1',
     CHECKS: 'tohoku_checks_v1',
     TAB: 'tohoku_active_tab_v1',
+    CLOUD_URL: 'tohoku_cloud_url_v1',
   };
 
   const VALID_TABS = ['day-1', 'day-2', 'day-3', 'day-4', 'day-5', 'day-6', 'day-7', 'summary'];
@@ -23,6 +24,7 @@
     exchangeRate: loadExchangeRate(),
     expenses: loadExpenses(),
     checks: loadChecks(),
+    cloudUrl: loadCloudUrl(),
     tableFilters: {
       day: 'ALL',
       method: 'ALL',
@@ -32,8 +34,34 @@
   };
 
   const openInlineForms = new Set();
+  let isApplyingCloudData = false;
+  let cloudPushTimer = null;
 
   // === Storage Helpers ===
+  function loadCloudUrl() {
+    try {
+      const saved = (localStorage.getItem(STORAGE_KEYS.CLOUD_URL) || '').trim();
+      if (saved) return saved;
+    } catch {
+      // Ignore storage errors
+    }
+    return typeof TRIP_INFO !== 'undefined' && TRIP_INFO.cloudSyncUrl
+      ? String(TRIP_INFO.cloudSyncUrl).trim()
+      : '';
+  }
+
+  function saveCloudUrl() {
+    try {
+      if (state.cloudUrl) {
+        localStorage.setItem(STORAGE_KEYS.CLOUD_URL, state.cloudUrl);
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.CLOUD_URL);
+      }
+    } catch {
+      // Ignore storage errors
+    }
+  }
+
   function loadActiveTab() {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.TAB);
@@ -66,6 +94,7 @@
     } catch {
       // Ignore storage errors
     }
+    scheduleCloudPush();
   }
 
   function loadExpenses() {
@@ -91,6 +120,7 @@
     } catch {
       // Ignore storage errors
     }
+    scheduleCloudPush();
   }
 
   function loadChecks() {
@@ -107,6 +137,125 @@
       localStorage.setItem(STORAGE_KEYS.CHECKS, JSON.stringify(state.checks));
     } catch {
       // Ignore storage errors
+    }
+    scheduleCloudPush();
+  }
+
+  // === Google Sheets Cloud Sync ===
+  function formatTimeHHMM(dateObj) {
+    const d = dateObj || new Date();
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${hh}:${mm}`;
+  }
+
+  function updateCloudStatus(mode, text) {
+    const heroPill = document.getElementById('hero-cloud-status');
+    const badge = document.getElementById('cloud-sync-badge');
+    const classes = ['is-synced', 'is-syncing', 'is-error'];
+
+    [heroPill, badge].forEach((el) => {
+      if (!el) return;
+      el.textContent = text;
+      el.classList.remove(...classes);
+      if (mode === 'synced') el.classList.add('is-synced');
+      else if (mode === 'syncing') el.classList.add('is-syncing');
+      else if (mode === 'error') el.classList.add('is-error');
+    });
+
+    const connected = Boolean(state.cloudUrl);
+    ['btn-cloud-pull', 'btn-cloud-push', 'btn-cloud-disconnect'].forEach((id) => {
+      const btn = document.getElementById(id);
+      if (btn) btn.disabled = !connected;
+    });
+  }
+
+  function scheduleCloudPush() {
+    if (isApplyingCloudData || !state.cloudUrl) return;
+    clearTimeout(cloudPushTimer);
+    updateCloudStatus('syncing', '⏳ 準備同步至試算表...');
+    cloudPushTimer = setTimeout(() => {
+      pushToCloud({ showSuccessToast: false });
+    }, 800);
+  }
+
+  async function pullFromCloud({ silentIfEmpty = true, showSuccessToast = false } = {}) {
+    if (!state.cloudUrl) return;
+    updateCloudStatus('syncing', '🔄 正在從試算表讀取...');
+    try {
+      const res = await fetch(state.cloudUrl, { method: 'GET' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!data || data.ok === false) {
+        throw new Error((data && data.error) || '試算表回應異常');
+      }
+
+      if (data.empty) {
+        // 全新空白試算表：自動把目前行程預設項目與本機進度寫入初始化
+        if (!silentIfEmpty) showToast('偵測到全新試算表，正在上傳初始費用清單...');
+        await pushToCloud({ showSuccessToast });
+        return;
+      }
+
+      isApplyingCloudData = true;
+      try {
+        if (Array.isArray(data.expenses)) {
+          const defaultMap = new Map(DEFAULT_EXPENSES.map((d) => [d.id, d.stopKey]));
+          state.expenses = data.expenses.map((item) =>
+            !item.stopKey && defaultMap.has(item.id)
+              ? { ...item, stopKey: defaultMap.get(item.id) }
+              : item
+          );
+          localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(state.expenses));
+        }
+        if (Number.isFinite(Number(data.exchangeRate)) && Number(data.exchangeRate) > 0) {
+          state.exchangeRate = Number(data.exchangeRate);
+          const rateEl = document.getElementById('exchange-rate');
+          if (rateEl) rateEl.value = state.exchangeRate;
+          localStorage.setItem(STORAGE_KEYS.RATE, String(state.exchangeRate));
+        }
+        if (data.checks && typeof data.checks === 'object') {
+          state.checks = data.checks;
+          localStorage.setItem(STORAGE_KEYS.CHECKS, JSON.stringify(state.checks));
+        }
+      } finally {
+        isApplyingCloudData = false;
+      }
+
+      renderPrepSection();
+      refreshExpenseViews();
+      updateCloudStatus('synced', `☁️ 已同步（${formatTimeHHMM()}）`);
+      if (showSuccessToast) showToast('已從 Google 試算表載入最新資料！');
+    } catch (err) {
+      updateCloudStatus('error', '⚠️ 讀取失敗（使用本機資料）');
+      if (showSuccessToast) showToast(`雲端讀取失敗：${err.message || '請檢查網址與權限'}`);
+    }
+  }
+
+  async function pushToCloud({ showSuccessToast = false } = {}) {
+    if (!state.cloudUrl) return;
+    updateCloudStatus('syncing', '☁️ 正在同步至試算表...');
+    try {
+      const payload = {
+        exchangeRate: state.exchangeRate,
+        expenses: state.expenses,
+        checks: state.checks,
+      };
+      const res = await fetch(state.cloudUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!data || data.ok === false) {
+        throw new Error((data && data.error) || '寫入失敗');
+      }
+      updateCloudStatus('synced', `☁️ 已同步（${formatTimeHHMM()}）`);
+      if (showSuccessToast) showToast(`已同步 ${state.expenses.length} 筆費用至 Google 試算表！`);
+    } catch (err) {
+      updateCloudStatus('error', '⚠️ 離線／同步失敗（已暫存本機）');
+      if (showSuccessToast) showToast(`雲端上傳失敗：${err.message || '請檢查網路與網址'}`);
     }
   }
 
@@ -1124,6 +1273,41 @@
       refreshExpenseViews();
       showToast('已清空所有費用紀錄');
     });
+
+    // Google 試算表雲端同步按鈕
+    const cloudInput = document.getElementById('cloud-url-input');
+    if (cloudInput) {
+      cloudInput.value = state.cloudUrl;
+    }
+
+    document.getElementById('btn-cloud-connect').addEventListener('click', () => {
+      const url = (cloudInput.value || '').trim();
+      if (!url || !url.startsWith('https://script.google.com/')) {
+        showToast('請貼上正確的 Google Apps Script 網址（https://script.google.com/.../exec）');
+        cloudInput.focus();
+        return;
+      }
+      state.cloudUrl = url;
+      saveCloudUrl();
+      pullFromCloud({ silentIfEmpty: false, showSuccessToast: true });
+    });
+
+    document.getElementById('btn-cloud-pull').addEventListener('click', () => {
+      pullFromCloud({ silentIfEmpty: false, showSuccessToast: true });
+    });
+
+    document.getElementById('btn-cloud-push').addEventListener('click', () => {
+      pushToCloud({ showSuccessToast: true });
+    });
+
+    document.getElementById('btn-cloud-disconnect').addEventListener('click', () => {
+      if (!confirm('確定要解除 Google 試算表連線，切回本機瀏覽器儲存模式嗎？')) return;
+      state.cloudUrl = '';
+      saveCloudUrl();
+      if (cloudInput) cloudInput.value = '';
+      updateCloudStatus('local', '📱 目前為本機儲存');
+      showToast('已解除雲端連線，改回本機儲存');
+    });
   }
 
   // === Initialize ===
@@ -1135,5 +1319,10 @@
     renderDiningSection();
     wireControls();
     switchTab(state.activeTab, false);
+    if (state.cloudUrl) {
+      pullFromCloud({ silentIfEmpty: true, showSuccessToast: false });
+    } else {
+      updateCloudStatus('local', '📱 目前為本機儲存');
+    }
   });
 })();

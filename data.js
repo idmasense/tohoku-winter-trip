@@ -8,6 +8,8 @@ const TRIP_INFO = {
   dates: '2026/12/17（四）– 12/23（三）',
   docUrl: 'https://docs.google.com/document/d/1Fx-8QjwvsltW1D50vwriKqt8MplHRS7y/edit',
   defaultRate: 0.215, // 1 JPY = 0.215 TWD
+  // 若已部署 Google Apps Script 網頁應用程式，可將 .../exec 網址填於此處，所有手機開啟即自動連線同步
+  cloudSyncUrl: '',
   passNote:
     '由於本行程交通總花費（約 ¥31,940）未達 JR EAST PASS（東北地區 5 日券 ¥35,000）門檻，強烈建議直接刷 IC 卡（Suica）與購買單程新幹線車票，更具彈性且更省錢。',
 };
